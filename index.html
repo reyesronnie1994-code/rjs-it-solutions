@@ -703,7 +703,7 @@
 
       <div class="form-card fade-in visible">
         <h3 style="color:#fff;font-size:1.25rem;font-weight:800;margin-bottom:22px">Send Us a Message</h3>
-        <form id="contactForm" action="https://formspree.io/f/mrevyrpl" method="POST">
+        <form id="contactForm" action="https://formspree.io/f/mrevyrpl" method="POST" autocomplete="off">
           <div class="form-row">
             <div class="form-group">
               <label for="fname">First Name *</label>
@@ -835,13 +835,20 @@
   }, { threshold: 0.1 });
   document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-  // Always reset form state on page load (prevents browser cache from showing stale "Sent!" state)
-  const _btn = document.querySelector('.form-submit');
-  if (_btn) { _btn.textContent = '🚀 Send Message'; _btn.disabled = false; }
-  const _success = document.getElementById('formSuccess');
-  if (_success) _success.style.display = 'none';
-  const _form = document.getElementById('contactForm');
-  if (_form) _form.reset();
+  // Always reset form state — runs on load AND on bfcache restore (mobile back/forward)
+  function resetFormUI() {
+    const _btn = document.querySelector('.form-submit');
+    if (_btn) { _btn.textContent = '🚀 Send Message'; _btn.disabled = false; }
+    const _success = document.getElementById('formSuccess');
+    if (_success) _success.style.display = 'none';
+    const _form = document.getElementById('contactForm');
+    if (_form) _form.reset();
+  }
+  resetFormUI();
+  window.addEventListener('pageshow', function(e) {
+    // e.persisted = true means page was restored from bfcache (mobile browser)
+    if (e.persisted) resetFormUI();
+  });
 
   // Contact form — Formspree AJAX
   document.getElementById('contactForm').addEventListener('submit', async function(e) {
