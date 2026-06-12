@@ -703,30 +703,30 @@
 
       <div class="form-card fade-in visible">
         <h3 style="color:#fff;font-size:1.25rem;font-weight:800;margin-bottom:22px">Send Us a Message</h3>
-        <form id="contactForm">
+        <form id="contactForm" action="https://formspree.io/f/mrevyrpl" method="POST">
           <div class="form-row">
             <div class="form-group">
               <label for="fname">First Name *</label>
-              <input type="text" id="fname" placeholder="Juan" required="">
+              <input type="text" id="fname" name="First Name" placeholder="Juan" required="">
             </div>
             <div class="form-group">
               <label for="lname">Last Name *</label>
-              <input type="text" id="lname" placeholder="Dela Cruz" required="">
+              <input type="text" id="lname" name="Last Name" placeholder="Dela Cruz" required="">
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label for="phone">Phone / Contact Number *</label>
-              <input type="tel" id="phone" placeholder="09XX XXX XXXX" required="">
+              <input type="tel" id="phone" name="Phone Number" placeholder="09XX XXX XXXX" required="">
             </div>
             <div class="form-group">
               <label for="location">Your Location</label>
-              <input type="text" id="location" placeholder="e.g. Dagupan, Pangasinan">
+              <input type="text" id="location" name="Location" placeholder="e.g. Dagupan, Pangasinan">
             </div>
           </div>
           <div class="form-group">
             <label for="service">Service Needed *</label>
-            <select id="service" required="">
+            <select id="service" name="Service Needed" required="">
               <option value="">— Select a Service —</option>
               <option>Computer &amp; Laptop Repair</option>
               <option>Windows Installation &amp; Setup</option>
@@ -741,10 +741,12 @@
           </div>
           <div class="form-group">
             <label for="message">Describe Your Issue *</label>
-            <textarea id="message" placeholder="Tell us what&#39;s happening with your device or what you need set up..." required=""></textarea>
+            <textarea id="message" name="Message" placeholder="Tell us what&#39;s happening with your device or what you need set up..." required=""></textarea>
           </div>
-          <button type="submit" class="btn btn-primary form-submit">🚀 Send Message</button>
-          <div class="form-success" id="formSuccess">
+          <input type="hidden" name="_subject" value="New Inquiry – RJ&#39;s IT Solutions">
+          <input type="hidden" name="_next" value="thank-you">
+          <button type="submit" class="btn btn-primary form-submit" disabled="">✅ Sent!</button>
+          <div class="form-success" id="formSuccess" style="display: block;">
             ✅ Message received! We'll get back to you as soon as possible. You can also call us directly at <strong>09297012116</strong>.
           </div>
         </form>
@@ -833,16 +835,29 @@
   }, { threshold: 0.1 });
   document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-  // Contact form
-  document.getElementById('contactForm').addEventListener('submit', function(e) {
+  // Contact form — Formspree AJAX
+  document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = this.querySelector('.form-submit');
     btn.textContent = 'Sending…'; btn.disabled = true;
-    setTimeout(() => {
-      document.getElementById('formSuccess').style.display = 'block';
-      btn.textContent = '✅ Sent!';
-      this.reset();
-    }, 1200);
+    try {
+      const response = await fetch('https://formspree.io/f/mrevyrpl', {
+        method: 'POST',
+        body: new FormData(this),
+        headers: { 'Accept': 'application/json' }
+      });
+      if (response.ok) {
+        document.getElementById('formSuccess').style.display = 'block';
+        btn.textContent = '✅ Sent!';
+        this.reset();
+      } else {
+        btn.textContent = '❌ Failed – try again';
+        btn.disabled = false;
+      }
+    } catch (err) {
+      btn.textContent = '❌ Error – check connection';
+      btn.disabled = false;
+    }
   });
 </script>
 
